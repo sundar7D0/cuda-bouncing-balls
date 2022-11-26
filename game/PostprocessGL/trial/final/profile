@@ -1,0 +1,6 @@
+#for profiling with nsys, follow the below:
+
+1. cd /usr/local/cuda-10.1/bin
+2. #remove existing reports
+3. sudo nsys profile /home/sundar/Desktop/game/PostprocessGL/trial/final/main.out
+4. sudo nsight-sys report1.qdrep

@@ -1,0 +1,190 @@
+#include <math.h>     // Needed for sin, cos
+#include <iostream>
+
+#define GLEW_STATIC  //specify GLEW_STATIC to use the static linked library (.lib) instead of the dynamic linked library (.dll) for GLEW
+#include <GL/glew.h>
+#include <GL/glut.h>  // GLUT, includes glu.h and gl.h
+
+#include <cuda_runtime_api.h>  //CUDA headers
+#include <cuda_gl_interop.h>
+
+#include "bt.h"  //for bt.cu
+
+#define PI 3.14159265f
+#define SRC_BUFFER  0
+#define DST_BUFFER  1
+
+ char title[] = "Bouncing Ball (2D)";  //windowed mode's title
+int windowWidth  = 640;  //windowed mode's width
+int windowHeight = 480;  //windowed mode's height
+int windowPosX   = 50;  //windowed mode's top-left corner x
+int windowPosY   = 50;  //windowed mode's top-left corner y
+ 
+GLfloat ballRadius = 0.001f;  //radius of the bouncing ball
+GLfloat ballX = 0.0f;  //ball's center (x, y) position
+GLfloat ballY = 0.0f;
+GLfloat ballXMax, ballXMin, ballYMax, ballYMin;  //ball's center (x, y) bounds
+GLfloat xSpeed = 0.2f;  //ball's speed in x and y directions
+GLfloat ySpeed = 0.07f;
+int refreshMillis = 30;  //refresh period in milliseconds
+GLfloat epsilon=1e-17;
+float cer=0.1;
+int n=100;
+GLfloat e=0.0;
+struct balls
+{
+   GLfloat ballRadius = 0.05f;  //radius
+   GLfloat ballX = 1.0*((static_cast <float> (rand()) - (static_cast <float> (RAND_MAX)/2.0)) / static_cast <float> (RAND_MAX));  //x
+   GLfloat ballY = 1.0*((static_cast <float> (rand()) - (static_cast <float> (RAND_MAX)/2.0)) / static_cast <float> (RAND_MAX));  //y
+   GLfloat xSpeed = 0.5*((static_cast <float> (rand()) - (static_cast <float> (RAND_MAX)/2.0)) / static_cast <float> (RAND_MAX));  //vx
+   GLfloat ySpeed = 0.5*((static_cast <float> (rand()) - (static_cast <float> (RAND_MAX)/2.0)) / static_cast <float> (RAND_MAX));  //vy
+} B[100];
+
+
+// Projection clipping area
+GLdouble clipAreaXLeft, clipAreaXRight, clipAreaYBottom, clipAreaYTop;
+ 
+/* Initialize OpenGL Graphics */
+void initGL() {
+   glClearColor(0.0, 0.0, 0.0, 1.0); // Set background (clear) color to black
+}
+
+void draw_circle(GLfloat x, GLfloat y, GLfloat r)  {
+//   glTranslatef(0.0f,0.0f,0.0f); 
+   int numSegments = 10000;
+   GLfloat angle;
+   glTranslatef(x,y,0.0f);  //translate to (xPos, yPos)
+   glBegin(GL_TRIANGLE_FAN);  //triangle-fan to create circle
+   glColor3f(0.0f, 0.0f, 1.0f);  //color
+   glVertex2f(0.0f, 0.0f);  //center of circle
+   for (int j = 0; j <= numSegments; j++)  {  //last vertex same as first vertex
+      angle = j * 2.0f * PI / numSegments;  //360` for all segments
+      glVertex2f(cos(angle)*r,sin(angle)*r);
+   }
+//   glTranslatef(-x,-y,0.0f);
+   glEnd();
+}
+
+/* Callback handler for window re-paint event */
+void display() { 
+   glClear(GL_COLOR_BUFFER_BIT);  // Clear the color buffer
+   for(int i=0; i<n; i++)  {
+      if(i==0)
+         e=0;
+
+      e+=pow(B[i].xSpeed,2)+pow(B[i].ySpeed,2);
+      if(i==n-1)
+         std::cout<<"total energy of system: "<<e<<std::endl;
+      for(int j=0;j<n,j!=i;j++)  {  //identifying overlaps
+         GLfloat dist = sqrt(pow(B[i].ballX-B[j].ballX,2)+pow(B[i].ballY-B[j].ballY,2));  //distance between centers
+         if (dist<B[i].ballRadius+B[j].ballRadius)  {
+            GLfloat dist_sin = (B[j].ballY-B[i].ballY)/(dist+epsilon);
+            GLfloat dist_cos = (B[j].ballX-B[i].ballX)/(dist+epsilon);
+            GLfloat mid_pt_x = (B[j].ballX+B[i].ballX)/2.0;
+            GLfloat mid_pt_y = (B[j].ballY+B[i].ballY)/2.0;
+            B[i].ballX=mid_pt_x-B[i].ballRadius*dist_cos;  //position change after overlap
+            B[i].ballY=mid_pt_y-B[i].ballRadius*dist_sin;
+            B[j].ballX=2*mid_pt_x-B[i].ballX;
+            B[j].ballY=2*mid_pt_y-B[i].ballY;
+/*    
+            B[i].xSpeed=cer*pow(B[j].ballRadius,3)*(B[j].xSpeed-B[i].xSpeed)+pow(B[i].ballRadius,3)*B[i].xSpeed+pow(B[j].ballRadius,3)*B[j].xSpeed/(pow(B[i].ballRadius,3)+pow(B[j].ballRadius,3));
+            B[i].xSpeed=((pow(B[i].ballRadius,3)-pow(B[j].ballRadius,3))*B[i].xSpeed+2*pow(B[j].ballRadius,3)*B[j].xSpeed)/(pow(B[i].ballRadius,3)+pow(B[j].ballRadius,3))
+*/
+            GLfloat m1=pow(B[i].ballRadius,3);
+            GLfloat m2=pow(B[j].ballRadius,3);
+            GLfloat speed1=sqrt(pow(B[i].xSpeed,2)+pow(B[i].ySpeed,2))+epsilon;
+            GLfloat speed2=sqrt(pow(B[j].xSpeed,2)+pow(B[j].ySpeed,2))+epsilon;
+            GLfloat speed1_cos=B[i].xSpeed/speed1;
+            GLfloat speed1_sin=B[i].ySpeed/speed1;
+            GLfloat speed2_cos=B[j].xSpeed/speed2;
+            GLfloat speed2_sin=B[j].ySpeed/speed2;
+            B[i].xSpeed=(speed1*(speed1_cos*dist_cos+speed1_sin*dist_sin)*(m1-m2)+2*m2*speed2*(speed2_cos*dist_cos+speed2_sin*dist_sin))*dist_cos/(m1+m2)-speed1*(speed1_sin*dist_cos-speed1_cos*dist_sin)*dist_sin;
+            B[i].ySpeed=(speed1*(speed1_cos*dist_cos+speed1_sin*dist_sin)*(m1-m2)+2*m2*speed2*(speed2_cos*dist_cos+speed2_sin*dist_sin))*dist_sin/(m1+m2)+speed1*(speed1_sin*dist_cos-speed1_cos*dist_sin)*dist_cos;
+            B[j].xSpeed=(speed2*(speed2_cos*dist_cos+speed2_sin*dist_sin)*(m2-m1)+2*m1*speed1*(speed1_cos*dist_cos+speed1_sin*dist_sin))*dist_cos/(m2+m1)-speed2*(speed2_sin*dist_cos-speed2_cos*dist_sin)*dist_sin;
+            B[j].ySpeed=(speed2*(speed2_cos*dist_cos+speed2_sin*dist_sin)*(m2-m1)+2*m1*speed1*(speed1_cos*dist_cos+speed1_sin*dist_sin))*dist_sin/(m2+m1)+speed2*(speed2_sin*dist_cos-speed2_cos*dist_sin)*dist_cos;
+/*
+            B[i].xSpeed=-B[i].xSpeed;
+            B[i].ySpeed=-B[i].ySpeed;
+            B[j].xSpeed=-B[j].xSpeed;
+            B[j].ySpeed=-B[j].ySpeed;
+*/
+         }
+      }
+      glMatrixMode(GL_MODELVIEW);  //to operate on the model-view matrix
+      glLoadIdentity();  //reset model-view matrix
+      draw_circle(B[i].ballX,B[i].ballY,B[i].ballRadius);
+      B[i].ballX += B[i].xSpeed;
+      B[i].ballY += B[i].ySpeed;
+//    std::cout<<"i: "<<i<<"; x/xmax: "<<B[i].ballX<<"/"<<ballXMax<<";   x/xmin: "<<B[i].ballX<<"/"<<ballXMin<<std::endl;
+      if (B[i].ballX > ballXMax) {
+         B[i].ballX = ballXMax;
+         B[i].xSpeed = -B[i].xSpeed;
+      } else if (B[i].ballX < ballXMin) {
+         B[i].ballX = ballXMin;
+         B[i].xSpeed = -B[i].xSpeed;
+      }
+      if (B[i].ballY > ballYMax) {
+         B[i].ballY = ballYMax;
+         B[i].ySpeed = -B[i].ySpeed;
+      } else if (B[i].ballY < ballYMin) {
+         B[i].ballY = ballYMin;
+         B[i].ySpeed = -B[i].ySpeed;
+      }
+   }
+   PostprocessCUDA(B);
+   glutSwapBuffers();  //Swap front and back buffers (of double buffered mode)
+   // Animation Control - compute the location for the next refresh
+//   refreshMillis+=1;
+}
+ 
+/* Call back when the windows is re-sized */
+void reshape(GLsizei width, GLsizei height) {
+   // Compute aspect ratio of the new window
+   if (height == 0) height = 1;                // To prevent divide by 0
+   GLfloat aspect = (GLfloat)width / (GLfloat)height;
+ 
+   // Set the viewport to cover the new window
+   glViewport(0, 0, width, height);
+ 
+   // Set the aspect ratio of the clipping area to match the viewport
+   glMatrixMode(GL_PROJECTION);  // To operate on the Projection matrix
+   glLoadIdentity();             // Reset the projection matrix
+   if (width >= height) {
+      clipAreaXLeft   = -1.0 * aspect;
+      clipAreaXRight  = 1.0 * aspect;
+      clipAreaYBottom = -1.0;
+      clipAreaYTop    = 1.0;
+   } else {
+      clipAreaXLeft   = -1.0;
+      clipAreaXRight  = 1.0;
+      clipAreaYBottom = -1.0 / aspect;
+      clipAreaYTop    = 1.0 / aspect;
+   }
+   gluOrtho2D(clipAreaXLeft, clipAreaXRight, clipAreaYBottom, clipAreaYTop);
+   ballXMin = clipAreaXLeft + ballRadius;
+   ballXMax = clipAreaXRight - ballRadius;
+   ballYMin = clipAreaYBottom + ballRadius;
+   ballYMax = clipAreaYTop - ballRadius;
+   std::cout<<"xx: "<<ballXMin<<ballXMax<<std::endl;
+}
+ 
+/* Called back when the timer expired */
+void Timer(int value) {
+   glutPostRedisplay();    // Post a paint request to activate display()
+   glutTimerFunc(refreshMillis, Timer, 0); // subsequent timer call at milliseconds
+}
+
+int main(int argc, char** argv) {  //main() where glut starts
+   cudaGLSetGLDevice(0);  //init cuda
+   glutInit(&argc, argv);  //initialize GLUT
+   glutInitDisplayMode(GLUT_DOUBLE);  //enable double buffered mode
+   glutInitWindowSize(windowWidth, windowHeight);  //initial window width and height
+   glutInitWindowPosition(windowPosX, windowPosY);  //initial window top-left corner (x, y)
+   glutCreateWindow(title);  //window title
+   glutDisplayFunc(display);  //register callback handler for window re-paint
+   glutReshapeFunc(reshape);  //register callback handler for window re-shape
+   glutTimerFunc(0, Timer, 0);  //first timer call immediately
+   initGL();  //our own OpenGL initialization
+   glutMainLoop();  //enter event-processing loop
+   return 0;
+}

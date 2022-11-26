@@ -1,0 +1,2 @@
+nvcc main.cpp Postprocess.cu -o main.out -I /usr/local/cuda-10.1/targets/x86_64-linux/include/ -lcudart -lglut -lGLU -lGL -lGLEW
+./main.out

@@ -1,0 +1,2 @@
+nvcc bb.cpp bt.cu -o bbb.out -I /usr/local/cuda-10.1/targets/x86_64-linux/include/ -lcudart -lglut -lGLU -lGL -lGLEW
+

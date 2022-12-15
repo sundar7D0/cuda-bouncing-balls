@@ -9,7 +9,7 @@ To accelerate a 2D balls-collision game (designed initially in JavaScript, hoste
 * nvprof profiler
 * OpenGL for graphics
 
-![ball_bounce_game](images/Ball Bounce.png)
+![ball_bounce_game](./images/Ball_Bounce.png)
 
 After reading, implementing few other techniques for accelerating this game-construct, "atomically updated list for ball-states in each tile" approach seemed to be the effective, optimal one.
 

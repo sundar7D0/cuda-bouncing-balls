@@ -14,13 +14,11 @@ To accelerate a 2D balls-collision game (designed initially in JavaScript, hoste
 After reading, implementing few other techniques for accelerating this game-construct, "atomically updated list for ball-states in each tile" approach seemed to be the effective, optimal one.
 
 ## Dependencies
-1. [Installing RDKit](https://www.rdkit.org/docs/GettingStartedInPython.html)
-2. python 3.6+
-3. tensorflow 2.1+
-4. numba v0.52
+1. [Installing CUDA](https://www.rdkit.org/docs/GettingStartedInPython.html)
+2. C++ 11
 
 ## Using the code
-A single Jupyter notebook `Modified_Transformer.ipynb`, downloads the dataset, evaluation toolkit (`RDKit`), builds, trains and evaluates the transformer model. It's parameters can be easily modified and the whole setup can be easily ported to run with public-cloud like GCP, AWS, etc. or `google-colab`.
+Launch a single script for all needs: `final/final/main.cu`.
 
 ## Additional resources
 1. Play the JS [game](https://covidchaos.github.io/), [Code](https://github.com/sundar7D0/covid-chaos)

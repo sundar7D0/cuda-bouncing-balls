@@ -1,5 +1,5 @@
 # Accelerating 2D bouncing-balls game using CUDA DSL
-To accelerate a 2D balls-collision game (designed initially in JavaScript, hosted online and was played 1000+ times), used CUDA (a design specific language to use Nvidia's GPU's as General Purpose GPUs) to accelerate it by 1.5×. This speedup is achieved by leveraging:
+To accelerate a **2D balls-collision game** (designed initially in **JavaScript**, hosted online and was played **1000+** times), used **CUDA** (a design specific language to use Nvidia's GPU's as General Purpose GPUs) to accelerate it by **~1.5×**. This speedup is achieved by leveraging:
 * Pinned memory, texture buffer for a fast, dedicated buffer memory-space
 * Read/write coalescing for fast data access
 * Ternary operator to reduce thread divergence
@@ -11,7 +11,7 @@ To accelerate a 2D balls-collision game (designed initially in JavaScript, hoste
 
 ![ball_bounce_game](./images/Ball_Bounce.png)
 
-After reading, implementing few other techniques for accelerating this game-construct, "atomically updated list for ball-states in each tile" approach seemed to be the effective/optimal approach.
+After reading, implementing few other techniques for accelerating this game-construct, "atomically updated list for ball-states in each tile" approach seemed to be the **effective/optimal** approach.
 
 ## Dependencies
 1. [Installing CUDA](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html)
@@ -20,9 +20,13 @@ After reading, implementing few other techniques for accelerating this game-cons
 4. Libraries: `cudart`, `glut`, `GLU`, `GL`, `GLEW`
 
 ## Using the code
-Launch a single script for all needs: `final/final/main.cu`.
-`nvcc final/final/main.cu final/final/Postprocess.cu -o main.out -I /usr/local/cuda-10.1/targets/x86_64-linux/include/ -lcudart -lglut -lGLU -lGL -lGLEW`
-Postprocess helps in coloring the background of the game.
+`final/final/main.cu` contains the **main program** which atomically updates of ball states, updates ball dynamics in the buffer, draws the graphics on screen, etc.
+
+1. Compile: `nvcc final/final/main.cu final/final/Postprocess.cu -o main.out -I /usr/local/cuda-10.1/targets/x86_64-linux/include/ -lcudart -lglut -lGLU -lGL -lGLEW`
+2. Run: `./main.out`
+3. Profiling: `./final/final/profile`
+
+`final/final/Postprocess.cu` helps in coloring the background of the game and edge detection using **filter kernels**.
 
 ## Additional resources
 1. Play the JS [game](https://covidchaos.github.io/), [Code](https://github.com/sundar7D0/covid-chaos)

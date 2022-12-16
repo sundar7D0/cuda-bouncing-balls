@@ -11,7 +11,7 @@ To accelerate a **2D balls-collision game** (designed initially in **JavaScript*
 
 ![ball_bounce_game](./images/Ball_Bounce.png)
 
-After reading, implementing few other techniques for accelerating this game-construct, "**atomically updated list for ball-states in each tile**" approach seemed to be the **effective/optimal** approach.
+After reading, implementing few other techniques for accelerating this game-construct, "**atomically updated list for ball-states in each tile**" approach seemed to be the **effective/optimal** approach. This project was done under the guidance of [Prof. Rupesh Nasre](http://www.cse.iitm.ac.in/~rupesh/) for [GPU programming course](http://www.cse.iitm.ac.in/~rupesh/teaching/gpu/jan20/) at [IIT Madras](https://www.iitm.ac.in/).
 
 ## Dependencies
 1. [Installing CUDA](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html)
@@ -31,4 +31,3 @@ After reading, implementing few other techniques for accelerating this game-cons
 ## Additional resources
 1. Play the JS [game](https://covidchaos.github.io/), find JS [Code](https://github.com/sundar7D0/covid-chaos)
 2. [Slides](https://docs.google.com/presentation/d/1SjBRra2Wo6VOd1nS5jwRlU2aCEokyeq-LyCCo21CvDQ/edit?usp=sharing)
-3. [GPU programming course content](http://www.cse.iitm.ac.in/~rupesh/teaching/gpu/jan20/)

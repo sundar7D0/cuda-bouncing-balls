@@ -20,7 +20,7 @@ After reading, implementing few other techniques for accelerating this game-cons
 4. Libraries: `cudart`, `glut`, `GLU`, `GL`, `GLEW`
 
 ## Using the code
-`final/final/main.cu` contains the **main program** which atomically updates of ball states, updates ball dynamics in the buffer, draws the graphics on screen, etc.
+`final/final/main.cu` contains the **main program** which atomically updates ball states, updates ball dynamics in the buffer, draws the graphics on screen, etc.
 
 1. Compile: `nvcc final/final/main.cu final/final/Postprocess.cu -o main.out -I /usr/local/cuda-10.1/targets/x86_64-linux/include/ -lcudart -lglut -lGLU -lGL -lGLEW`
 2. Run: `./main.out`

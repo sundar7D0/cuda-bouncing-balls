@@ -29,6 +29,6 @@ After reading, implementing few other techniques for accelerating this game-cons
 `final/final/Postprocess.cu` helps in coloring the background of the game and edge detection using **filter kernels**.
 
 ## Additional resources
-1. Play the JS [game](https://covidchaos.github.io/), JS [Code](https://github.com/sundar7D0/covid-chaos)
+1. Play the JS [game](https://covidchaos.github.io/), find JS [Code](https://github.com/sundar7D0/covid-chaos)
 2. [Slides](https://docs.google.com/presentation/d/1SjBRra2Wo6VOd1nS5jwRlU2aCEokyeq-LyCCo21CvDQ/edit?usp=sharing)
 3. [GPU programming course content](http://www.cse.iitm.ac.in/~rupesh/teaching/gpu/jan20/)

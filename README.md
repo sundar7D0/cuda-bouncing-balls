@@ -1,4 +1,4 @@
-# Accelerating 2D bouncing-balls game using CUDA DSL
+# Accelerating 2D "bouncing-balls" game using CUDA DSL
 To accelerate a **2D balls-collision game** (designed initially in **JavaScript**, hosted online and was played **1000+** times), used **CUDA** (a design specific language to use Nvidia's GPU's as General Purpose GPUs) to accelerate it by **~1.5×**. This speedup is achieved by leveraging:
 * Pinned memory, texture buffer for a fast, dedicated buffer memory-space
 * Read/write coalescing for fast data access

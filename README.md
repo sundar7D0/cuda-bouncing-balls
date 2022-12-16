@@ -11,15 +11,20 @@ To accelerate a 2D balls-collision game (designed initially in JavaScript, hoste
 
 ![ball_bounce_game](./images/Ball_Bounce.png)
 
-After reading, implementing few other techniques for accelerating this game-construct, "atomically updated list for ball-states in each tile" approach seemed to be the effective, optimal one.
+After reading, implementing few other techniques for accelerating this game-construct, "atomically updated list for ball-states in each tile" approach seemed to be the effective/optimal approach.
 
 ## Dependencies
-1. [Installing CUDA](https://www.rdkit.org/docs/GettingStartedInPython.html)
-2. C++ 11
+1. [Installing CUDA](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html)
+2. [Installing OpenGL](https://medium.com/geekculture/a-beginners-guide-to-setup-opengl-in-linux-debian-2bfe02ccd1e) 
+3. C++ 11
+4. Libraries: `cudart`, `glut`, `GLU`, `GL`, `GLEW`
 
 ## Using the code
 Launch a single script for all needs: `final/final/main.cu`.
+`nvcc final/final/main.cu final/final/Postprocess.cu -o main.out -I /usr/local/cuda-10.1/targets/x86_64-linux/include/ -lcudart -lglut -lGLU -lGL -lGLEW`
+Postprocess helps in coloring the background of the game.
 
 ## Additional resources
 1. Play the JS [game](https://covidchaos.github.io/), [Code](https://github.com/sundar7D0/covid-chaos)
 2. [Slides](https://docs.google.com/presentation/d/1SjBRra2Wo6VOd1nS5jwRlU2aCEokyeq-LyCCo21CvDQ/edit?usp=sharing)
+3. [GPU programming course content](http://www.cse.iitm.ac.in/~rupesh/teaching/gpu/jan20/)
